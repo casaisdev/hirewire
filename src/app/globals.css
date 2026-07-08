@@ -1,0 +1,995 @@
+@import "tailwindcss";
+
+/*
+ * HireWire — "settlement desk" theme.
+ *
+ * Direction: this store's material is the ledger itself — accounts, hashes,
+ * escrows, receipts. So the palette is warm graphite (ink on ledger paper)
+ * with a single AMBER accent for value, green reserved for settled states,
+ * and a monospace display voice (IBM Plex Mono) because on this site the
+ * content IS monospace. The signature element is the settlement receipt.
+ *
+ * Named palette:
+ *   ink        #0C0B08  — page ground (warm near-black)
+ *   ledger     #14130E  — panel surface
+ *   ledger-2   #1B1A13  — raised surface
+ *   rule       #2A281C  — hairline rules / borders
+ *   paper      #EDEADD  — primary text (warm paper white)
+ *   amber      #F2B33D  — THE accent: value, actions, live signals
+ *   settled    #63C466  — success/settled only
+ *   alert      #E0604A  — errors only
+ *
+ * The official AgenC components style themselves from `--agenc-*` tokens, so
+ * remapping the tokens re-brands every protocol surface (cards, hire modal,
+ * badges) without touching protocol code.
+ *
+ * `:root:root, .agenc.agenc` (not plain `:root`): the package's vendored
+ * theme.css defines the same custom properties on `:root, .agenc` and loads
+ * AFTER this sheet — and the protocol components mount an `.agenc`-classed
+ * wrapper, whose ELEMENT-scoped definitions beat any :root value for
+ * inherited custom properties. Doubling both selectors out-ranks each of the
+ * package's two definition sites regardless of stylesheet order.
+ */
+:root:root,
+.agenc.agenc {
+  --ink: #0c0b08;
+  --ledger: #14130e;
+  --ledger-2: #1b1a13;
+  --rule: #2a281c;
+  --rule-strong: #403c28;
+  --paper: #edeadd;
+  --paper-muted: #a8a28a;
+  --paper-dim: #6f6a55;
+  --amber: #f2b33d;
+  --amber-deep: #c98d1e;
+  --settled: #63c466;
+  --alert: #e0604a;
+
+  /* AgenC token remap — protocol components inherit the desk. */
+  --agenc-void: var(--ink);
+  --agenc-surface: var(--ledger);
+  --agenc-surface-2: var(--ledger-2);
+  --agenc-surface-3: #221f15;
+  --agenc-border: var(--rule);
+  --agenc-border-strong: var(--rule-strong);
+  --agenc-text: var(--paper);
+  --agenc-text-muted: var(--paper-muted);
+  --agenc-text-dim: var(--paper-dim);
+  --agenc-cyan: var(--amber);
+  --agenc-violet: var(--amber-deep);
+  --agenc-magenta: #d99e6a;
+  --agenc-success: var(--settled);
+  --agenc-warning: var(--amber);
+  --agenc-danger: var(--alert);
+  --agenc-gradient-primary: linear-gradient(180deg, #f7c35c 0%, #e8a52a 100%);
+  --agenc-gradient-cool: linear-gradient(180deg, var(--ledger-2) 0%, var(--ledger) 100%);
+  --agenc-gradient-text: linear-gradient(90deg, #f7c35c 0%, #f2b33d 100%);
+  --agenc-glow-cyan: 0 0 0 1px rgba(242, 179, 61, 0.25);
+  --agenc-glow-violet: 0 0 0 1px rgba(242, 179, 61, 0.18);
+  --agenc-glow-magenta: 0 0 0 1px rgba(217, 158, 106, 0.18);
+  --agenc-grid: rgba(237, 234, 221, 0.03);
+  --agenc-radius: 6px;
+  --agenc-radius-sm: 4px;
+  --agenc-radius-lg: 10px;
+  --agenc-font: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --mono: var(--font-mono), ui-monospace, "Cascadia Code", Consolas, monospace;
+  --sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background:
+    /* faint ledger ruling — barely-there horizontal lines */
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 43px,
+      rgba(237, 234, 221, 0.013) 43px,
+      rgba(237, 234, 221, 0.013) 44px
+    ),
+    var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.55;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(242, 179, 61, 0.3);
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---------- App shell ---------- */
+
+.hw-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.hw-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  background: rgba(12, 11, 8, 0.88);
+  border-bottom: 1px solid var(--rule);
+}
+
+.hw-header-inner {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.hw-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  text-decoration: none;
+  font-family: var(--mono);
+}
+
+.hw-brand-mark {
+  color: var(--amber);
+  font-weight: 600;
+  transform: translateY(1px);
+}
+
+.hw-brand-name {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--paper);
+}
+
+.hw-brand-name em {
+  font-style: normal;
+  color: var(--amber);
+}
+
+.hw-brand-tag {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--settled);
+  padding-left: 0.7rem;
+  position: relative;
+}
+
+.hw-brand-tag::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-58%);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--settled);
+}
+
+.hw-nav {
+  display: flex;
+  gap: 0.15rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.hw-nav-link {
+  padding: 0.38rem 0.7rem;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+  color: var(--paper-muted);
+  text-decoration: none;
+  transition: color 120ms, background 120ms;
+}
+
+.hw-nav-link:hover {
+  color: var(--paper);
+  background: var(--ledger-2);
+}
+
+.hw-nav-link.active {
+  color: var(--amber);
+  background: rgba(242, 179, 61, 0.08);
+}
+
+.hw-main {
+  flex: 1;
+  width: 100%;
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3.5rem;
+}
+
+/* ---------- Wallet control ---------- */
+
+.hw-wallet {
+  position: relative;
+  margin-left: auto;
+}
+
+.hw-wallet-connect {
+  padding: 0.5rem 1.05rem;
+  border-radius: 6px;
+  border: 1px solid var(--amber-deep);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #16130a;
+  background: var(--agenc-gradient-primary);
+}
+
+.hw-wallet-connect:hover {
+  filter: brightness(1.06);
+}
+
+.hw-wallet-connect:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.hw-wallet-connected {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.48rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--paper);
+  background: var(--ledger-2);
+  border: 1px solid var(--rule-strong);
+}
+
+.hw-wallet-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--settled);
+}
+
+.hw-wallet-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 13.5rem;
+  display: grid;
+  padding: 0.3rem;
+  gap: 0.1rem;
+  border-radius: 8px;
+  background: var(--ledger-2);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.5);
+}
+
+.hw-wallet-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hw-wallet-item:hover {
+  background: rgba(237, 234, 221, 0.05);
+}
+
+.hw-wallet-item-danger {
+  color: var(--alert);
+}
+
+.hw-wallet-empty {
+  padding: 0.75rem;
+  font-size: 0.84rem;
+  color: var(--paper-muted);
+  line-height: 1.5;
+}
+
+.hw-wallet-empty a {
+  color: var(--amber);
+}
+
+.hw-wallet-error {
+  padding: 0.5rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--alert);
+}
+
+/* ---------- Hero: headline + settlement receipt ---------- */
+
+.hw-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 2.5rem;
+  align-items: start;
+  padding: 2.75rem 0 2rem;
+}
+
+.hw-hero-copy {
+  display: grid;
+  gap: 1rem;
+}
+
+.hw-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+.hw-eyebrow b {
+  color: var(--amber);
+  font-weight: 500;
+}
+
+.hw-hero h1 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(1.65rem, 3.6vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  max-width: 30ch;
+}
+
+.hw-hero h1 .grad {
+  color: var(--amber);
+}
+
+.hw-hero-copy p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--paper-muted);
+  line-height: 1.65;
+}
+
+/* Ledger strip — the live stats as one receipt line, not stat tiles. */
+.hw-ledger-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 1.6rem;
+  row-gap: 0.4rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.hw-ledger-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.hw-ledger-item span {
+  color: var(--paper-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+}
+
+.hw-ledger-item b {
+  color: var(--amber);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hw-ledger-note {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  color: var(--paper-dim);
+}
+
+.hw-ledger-note a {
+  color: var(--paper-muted);
+}
+
+/* The signature: a settlement receipt, printed. */
+.hw-receipt {
+  position: relative;
+  background: var(--ledger);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1.1rem 1.2rem 1.3rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--paper-muted);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.4);
+}
+
+.hw-receipt::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 8px;
+  right: 8px;
+  height: 7px;
+  background-image: radial-gradient(
+    circle at 4px 0px,
+    var(--ink) 3px,
+    transparent 3.5px
+  );
+  background-size: 12px 7px;
+  background-repeat: repeat-x;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hw-receipt {
+    animation: hw-print 480ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  }
+  @keyframes hw-print {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+      clip-path: inset(0 0 55% 0);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      clip-path: inset(0 0 0 0);
+    }
+  }
+}
+
+.hw-receipt-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.65rem;
+  border-bottom: 1px dashed var(--rule-strong);
+  color: var(--paper);
+}
+
+.hw-receipt-head b {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hw-receipt-head span {
+  font-size: 0.68rem;
+  color: var(--paper-dim);
+}
+
+.hw-receipt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.22rem 0;
+}
+
+.hw-receipt-row .k {
+  white-space: nowrap;
+}
+
+.hw-receipt-row .leader {
+  flex: 1;
+  border-bottom: 1px dotted var(--rule-strong);
+  transform: translateY(-3px);
+}
+
+.hw-receipt-row .v {
+  white-space: nowrap;
+  color: var(--paper);
+}
+
+.hw-receipt-row.emph .k,
+.hw-receipt-row.emph .v {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.hw-receipt-foot {
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--rule-strong);
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+}
+
+.hw-receipt-stamp {
+  color: var(--settled);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.hw-receipt-foot a {
+  color: var(--paper-muted);
+  word-break: break-all;
+}
+
+.hw-receipt-foot a:hover {
+  color: var(--amber);
+}
+
+/* ---------- Listing detail head ---------- */
+
+.hw-detail-head {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1.6rem 0 1.2rem;
+}
+
+.hw-detail-head h1 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.hw-detail-head > p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--paper-muted);
+}
+
+.hw-detail-pda a {
+  color: var(--paper-dim);
+  text-decoration: none;
+}
+
+.hw-detail-pda a:hover {
+  color: var(--amber);
+}
+
+/* ---------- Catalog: section head + toolbar ---------- */
+
+/* Ledger-entry section header: label — dashed rule — live count. */
+.hw-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  margin: 1.9rem 0 0.9rem;
+  font-family: var(--mono);
+}
+
+.hw-section-head b {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper);
+  white-space: nowrap;
+}
+
+.hw-section-head .rule {
+  flex: 1;
+  border-bottom: 1px dashed var(--rule-strong);
+  transform: translateY(-4px);
+}
+
+.hw-section-head span {
+  font-size: 0.7rem;
+  color: var(--paper-dim);
+  white-space: nowrap;
+}
+
+.hw-toolbar {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.4rem;
+}
+
+.hw-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.hw-search {
+  flex: 1;
+  min-width: 15rem;
+  max-width: 30rem;
+  padding: 0.6rem 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--ledger);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+.hw-search::placeholder {
+  color: var(--paper-dim);
+}
+
+.hw-search:focus {
+  outline: none;
+  border-color: var(--amber-deep);
+  box-shadow: 0 0 0 3px rgba(242, 179, 61, 0.12);
+}
+
+.hw-select {
+  padding: 0.58rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--ledger);
+  color: var(--paper-muted);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.hw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.hw-chip {
+  padding: 0.32rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--paper-muted);
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+
+.hw-chip:hover {
+  border-color: var(--rule-strong);
+  color: var(--paper);
+}
+
+.hw-chip.active {
+  border-color: var(--amber-deep);
+  background: rgba(242, 179, 61, 0.09);
+  color: var(--amber);
+}
+
+.hw-result-count {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--paper-dim);
+}
+
+.hw-result-count a,
+.hw-stat-note a {
+  color: var(--paper-muted);
+}
+
+/* ---------- Panels (proof / network / hires) ---------- */
+
+.hw-panel {
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+  background: var(--ledger);
+  padding: 1.15rem 1.25rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.hw-panel h2 {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.hw-panel-ok,
+.hw-panel-fail {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  padding: 0.1rem 0.5rem;
+  border-radius: 3px;
+}
+
+.hw-panel-ok {
+  color: var(--settled);
+  border: 1px solid rgba(99, 196, 102, 0.4);
+  background: rgba(99, 196, 102, 0.08);
+}
+
+.hw-panel-fail {
+  color: var(--alert);
+  border: 1px solid rgba(224, 96, 74, 0.4);
+  background: rgba(224, 96, 74, 0.08);
+}
+
+.hw-mono {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.hw-code {
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: #0a0906;
+  padding: 0.75rem 0.95rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: #d8c99a;
+}
+
+.hw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.hw-table th,
+.hw-table td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hw-table th {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--paper-dim);
+}
+
+.hw-table a {
+  color: var(--paper-muted);
+}
+
+.hw-table a:hover {
+  color: var(--amber);
+}
+
+/* Legacy stat tiles (network page fallback) restyled as ledger cells. */
+.hw-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.hw-stat {
+  display: grid;
+  gap: 0.05rem;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: var(--ledger-2);
+  border: 1px solid var(--rule);
+  min-width: 8rem;
+}
+
+.hw-stat b {
+  font-size: 1.1rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--amber);
+}
+
+.hw-stat span {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--paper-dim);
+}
+
+.hw-stat-note {
+  width: 100%;
+  font-size: 0.74rem;
+  color: var(--paper-dim);
+}
+
+/* ---------- Protocol-component presentation fixes ---------- */
+
+/*
+ * The package's primary button pairs `--agenc-text` ON `--agenc-violet`; with
+ * the desk palette that is paper-on-amber (≈2.3:1). Restate it as ink on
+ * amber — the receipt-stamp treatment every other CTA here uses. Scoped under
+ * .hw-app to out-rank the package sheet regardless of load order.
+ */
+.hw-app .agenc-button--primary {
+  background: var(--agenc-gradient-primary);
+  color: #16130a;
+  font-weight: 600;
+}
+
+.hw-app .agenc-button--primary:hover:not(:disabled) {
+  background: var(--agenc-gradient-primary);
+  filter: brightness(1.07);
+}
+
+/*
+ * Listing cards, restated as ledger entries: quiet surface, mono title (the
+ * listing name is on-chain data), and single-line stamp badges instead of the
+ * package's wrapping pills. Colors come from the token remap; these rules fix
+ * LAYOUT only.
+ */
+.hw-app .agenc-listing-card {
+  background: var(--ledger);
+  border-radius: 8px;
+  padding: 1rem 1.05rem;
+  gap: 0.65rem;
+  transition: border-color 140ms, transform 140ms;
+}
+
+.hw-app .agenc-listing-card:hover {
+  border-color: var(--rule-strong);
+  transform: translateY(-1px);
+}
+
+/* Stamp first, then the title at full width — kills the one-word-per-line
+   wrap the package's title/badge flex row produces on long listing names. */
+.hw-app .agenc-listing-card__header {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.hw-app .agenc-listing-card__title {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.hw-app .agenc-badge {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: transparent;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+.hw-app .agenc-badge--success {
+  background: rgba(99, 196, 102, 0.07);
+  border-color: rgba(99, 196, 102, 0.35);
+}
+
+.hw-app .agenc-badge--info {
+  background: rgba(242, 179, 61, 0.06);
+  border-color: rgba(242, 179, 61, 0.3);
+}
+
+.hw-app .agenc-listing-card__meta {
+  font-size: 0.8rem;
+  gap: 0.45rem;
+}
+
+.hw-app .agenc-listing-card__price-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.hw-app .agenc-listing-card__price-value {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+/* ---------- Footer ---------- */
+
+.hw-footer {
+  border-top: 1px solid var(--rule);
+  background: rgba(12, 11, 8, 0.6);
+}
+
+.hw-footer-inner {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.25rem 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.hw-footer-col {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 34rem;
+}
+
+.hw-footer-disclosure {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: var(--paper-dim);
+}
+
+.hw-footer-disclosure a {
+  color: var(--paper-muted);
+}
+
+.hw-footer-links {
+  display: grid;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.hw-footer-links a {
+  color: var(--paper-muted);
+  text-decoration: none;
+}
+
+.hw-footer-links a:hover {
+  color: var(--amber);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .hw-hero {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding-top: 2rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .hw-header-inner {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .hw-nav {
+    order: 3;
+    width: 100%;
+  }
+}
