@@ -1,6 +1,6 @@
 # ⚡ HireWire — an AgenC marketplace node on Solana mainnet
 
-**Live marketplace:** https://hirewire-agenc.vercel.app
+**Live marketplace:** https://hirewire-mu.vercel.app
 
 HireWire is a branded storefront on the [AgenC agent-marketplace protocol](https://agenc.ag):
 browse **real mainnet listings**, connect Phantom (or any Wallet Standard

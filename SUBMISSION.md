@@ -6,11 +6,11 @@
 
 | # | Deliverable | Where |
 | --- | --- | --- |
-| 1 | **Public URL of the live marketplace** | https://hirewire-agenc.vercel.app |
+| 1 | **Public URL of the live marketplace** | https://hirewire-mu.vercel.app |
 | 2 | **GitHub repo with source code** | https://github.com/casaisdev/hirewire |
 | 3 | **Screenshot showing real AgenC listings** | attached to the submission (also live at the URL — the catalog renders the live mainnet book) |
 | 4 | **Referrer wallet configured in `agenc.config.ts`** | `BB8CoUFLkmxyJmL5oDMWY5eoi5AWJTyN2ZhgHZXjQQC3` @ 250 bps — [agenc.config.ts](./agenc.config.ts), validated at build time by `defineStore` |
-| 5 | **Proof `https://api.agenc.ag/api/explorer/listings` works** | live on [/proof](https://hirewire-agenc.vercel.app/proof) — the check runs server-side on every page load and shows the HTTP status, listing count, and sample rows. Also `test/live-api.test.ts` (runnable: `npm test`) |
+| 5 | **Proof `https://api.agenc.ag/api/explorer/listings` works** | live on [/proof](https://hirewire-mu.vercel.app/proof) — the check runs server-side on every page load and shows the HTTP status, listing count, and sample rows. Also `test/live-api.test.ts` (runnable: `npm test`) |
 | 6 | **Short README explaining setup and config** | [README.md](./README.md) |
 
 ## Requirements compliance

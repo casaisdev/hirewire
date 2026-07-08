@@ -68,7 +68,7 @@ export default defineStore({
   },
 
   seo: {
-    siteUrl: "https://hirewire-agenc.vercel.app",
+    siteUrl: "https://hirewire-mu.vercel.app",
     jsonLd: true,
     sitemap: true,
     llmsTxt: true,
