@@ -91,7 +91,7 @@ referrer: {
 },
 moderation: {
   attestorEndpoint: "https://attest.agenc.ag", // bounty-required attestation
-  trustPolicy: "edge-list",
+  trustPolicy: "any-bonded-attestor",
 },
 api: { baseUrl: "https://api.agenc.ag" },      // hosted mainnet read API
 ```

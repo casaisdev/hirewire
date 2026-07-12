@@ -64,7 +64,7 @@ export default defineStore({
     // attestations here, and GET /v1/info names the moderator pubkey hires
     // pass at the P1.2 gates. Never hardcode the moderator.
     attestorEndpoint: "https://attest.agenc.ag",
-    trustPolicy: "edge-list",
+    trustPolicy: "any-bonded-attestor",
   },
 
   seo: {

@@ -22,9 +22,11 @@ import {
 } from "react";
 import {
   signerFromWalletAccount,
+  signerFromWalletAdapter,
   type TransactionSigner,
   type WalletStandardSignTransaction,
 } from "@tetsuo-ai/marketplace-react";
+import { VersionedTransaction } from "@solana/web3.js";
 
 /** CAIP-2 chain this store signs for (mainnet store). */
 const CHAIN = "solana:mainnet";
@@ -71,6 +73,36 @@ interface SignTransactionFeature {
 function feature<T>(wallet: StandardWallet, name: string): T | null {
   const f = wallet.features[name];
   return f ? (f as T) : null;
+}
+
+/** The slice of an injected legacy wallet provider the adapter signer needs. */
+interface LegacyProvider {
+  publicKey: { toBase58(): string } | null;
+  signTransaction?: <T extends { serialize(): Uint8Array }>(
+    transaction: T,
+  ) => Promise<T>;
+}
+
+/**
+ * Find an injected legacy provider (window.phantom.solana, window.solflare)
+ * whose connected public key matches the Wallet Standard account — signing
+ * through it avoids the guard-instruction mutation of the standard feature.
+ */
+function legacyProviderFor(address: string): LegacyProvider | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as {
+    phantom?: { solana?: LegacyProvider };
+    solflare?: LegacyProvider;
+  };
+  for (const provider of [w.phantom?.solana, w.solflare]) {
+    if (
+      provider?.signTransaction &&
+      provider.publicKey?.toBase58?.() === address
+    ) {
+      return provider;
+    }
+  }
+  return null;
 }
 
 /** A wallet is usable here iff it can connect + sign for Solana mainnet. */
@@ -253,10 +285,28 @@ export function WalletContextProvider({ children }: { children: ReactNode }) {
   }, [wallet, adoptAccounts]);
 
   // Bridge the connected account to the kit signer the SDK client expects.
-  // The signTransaction feature lives on the WALLET in the raw Wallet
-  // Standard layout, so pass it explicitly (the documented override seam).
+  //
+  // PREFER the wallet's injected legacy provider (window.phantom.solana /
+  // window.solflare) via `signerFromWalletAdapter`: on the legacy sign path
+  // wallets return the transaction UNMODIFIED, whereas on the Wallet Standard
+  // `solana:signTransaction` feature Phantom/Solflare inject a Lighthouse
+  // guard instruction into the message before signing. The AgenC bridge
+  // re-attaches the extracted signature to the ORIGINAL message, so a
+  // guard-mutated signature is invalid at submission and every hire fails
+  // preflight. Verified empirically on mainnet (the mutated tx itself
+  // simulates successfully; only the reattached signature is wrong).
+  // Falls back to the Wallet Standard bridge for wallets with no injected
+  // provider.
   const signer = useMemo<TransactionSigner | null>(() => {
     if (!wallet || !account) return null;
+    const legacy = legacyProviderFor(account.address);
+    if (legacy) {
+      try {
+        return signerFromWalletAdapter(legacy, { VersionedTransaction });
+      } catch {
+        /* fall through to the Wallet Standard bridge */
+      }
+    }
     const sign = feature<SignTransactionFeature>(
       wallet,
       "solana:signTransaction",
