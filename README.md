@@ -64,13 +64,13 @@ anywhere, and no private keys are ever requested or held.
 | Next.js (App Router) + React | 15 / 19 |
 | `@tetsuo-ai/store-core` | `^0.6.0` (current published; official supported range 0.5.x to 0.6.x per [agenc.ag/api/versions](https://agenc.ag/api/versions)) |
 | `@tetsuo-ai/marketplace-react` | `^0.4.0` |
-| `@tetsuo-ai/marketplace-sdk` | `^0.10.0` (the post-flag-day wire; older pins are rejected fail-closed by the program) |
+| `@tetsuo-ai/marketplace-sdk` | `^0.11.0` (the post-flag-day wire; older pins are rejected fail-closed by the program) |
 | Read API | `https://api.agenc.ag` |
 | Moderation attestation | `https://attest.agenc.ag` (pinned explicitly in config) |
 
 The `overrides` block in `package.json` resolves the store-core and
 marketplace-react peer metadata (which still declares `sdk ^0.8.0`) onto the
-required `^0.10.0` pin, so `npm ls` resolves **clean, with no peer warnings**.
+required `^0.11.0` pin, so `npm ls` resolves **clean, with no peer warnings**.
 
 ## Setup
 

@@ -18,7 +18,7 @@
 - ✅ **`@tetsuo-ai/store-core` + `@tetsuo-ai/marketplace-react` + `@tetsuo-ai/marketplace-sdk`**
  : official packages everywhere; reads are SDK-native (`useListings`,
   `ListingDetailSection`), the hire flow is the official
-  hire→attest→activate pipeline. `marketplace-sdk` is pinned **`^0.10.0`**
+  hire→attest→activate pipeline. `marketplace-sdk` is pinned **`^0.11.0`**
   (the post-flag-day wire) and the `overrides` block makes the whole tree
   resolve **clean: no peer warnings** (`npm ls` proof in the README).
 - ✅ **`api.agenc.ag` as the public read API**: pinned in `agenc.config.ts`;

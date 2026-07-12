@@ -52,8 +52,8 @@ describe("package pins (bounty-required official packages)", () => {
     expect(deps["@tetsuo-ai/marketplace-sdk"]).toBeDefined();
   });
 
-  it("pins marketplace-sdk to the post-flag-day wire (^0.10.0)", () => {
-    expect(deps["@tetsuo-ai/marketplace-sdk"]).toBe("^0.10.0");
+  it("pins marketplace-sdk to the post-flag-day wire (^0.11.0)", () => {
+    expect(deps["@tetsuo-ai/marketplace-sdk"]).toBe("^0.11.0");
   });
 
   it("pins marketplace-react to the supported 0.4.x line", () => {
